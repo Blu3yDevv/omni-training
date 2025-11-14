@@ -14,7 +14,7 @@ from datasets import load_dataset
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import BitsAndBytesConfig
 
-MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"  # adjust if needed
+MODEL_ID = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 DATA_PATH = "data/processed/omni_train.jsonl"
 OUTPUT_DIR = "outputs/omni_nano_qlora"
 
