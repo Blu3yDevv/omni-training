@@ -84,20 +84,22 @@ def main():
     tokenizer, model = load_tokenizer_and_model()
     train_ds = load_training_dataset(tokenizer)
 
-    training_args = TrainingArguments(
-        output_dir=OUTPUT_DIR,
-        per_device_train_batch_size=1,
-        gradient_accumulation_steps=8,
-        num_train_epochs=1.0,
-        learning_rate=2e-4,
-        fp16=False,
-        bf16=True,
-        logging_steps=10,
-        save_steps=200,
-        save_total_limit=2,
-        evaluation_strategy="no",
-        report_to="none",
-    )
+ training_args = TrainingArguments(
+    output_dir=OUTPUT_DIR,
+    per_device_train_batch_size=1,
+    gradient_accumulation_steps=8,
+    num_train_epochs=1.0,
+    learning_rate=2e-4,
+    fp16=False,
+    bf16=True,
+    logging_steps=10,
+    save_steps=200,
+    save_total_limit=2,
+    eval_strategy="no",      # <— NEW NAME
+    report_to="none",
+)
+
+
 
     trainer = Trainer(
         model=model,
