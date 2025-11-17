@@ -1,7 +1,5 @@
 import os
-import json
-from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict
 
 import torch
 from transformers import (
@@ -36,6 +34,7 @@ lora_config = LoraConfig(
     task_type="CAUSAL_LM",
 )
 
+
 def load_tokenizer_and_model():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, use_auth_token=HF_TOKEN)
     tokenizer.pad_token = tokenizer.eos_token
@@ -49,6 +48,7 @@ def load_tokenizer_and_model():
     model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, lora_config)
     return tokenizer, model
+
 
 def format_example(example: Dict, tokenizer):
     # Convert messages -> a single training string with special formatting.
@@ -75,31 +75,31 @@ def format_example(example: Dict, tokenizer):
     tokenized["labels"] = tokenized["input_ids"].copy()
     return tokenized
 
+
 def load_training_dataset(tokenizer):
     ds = load_dataset("json", data_files=DATA_PATH, split="train")
     ds = ds.map(lambda ex: format_example(ex, tokenizer), batched=False)
     return ds
 
+
 def main():
     tokenizer, model = load_tokenizer_and_model()
     train_ds = load_training_dataset(tokenizer)
 
- training_args = TrainingArguments(
-    output_dir=OUTPUT_DIR,
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=8,
-    num_train_epochs=1.0,
-    learning_rate=2e-4,
-    fp16=True,
-    bf16=False,
-    logging_steps=10,
-    save_steps=200,
-    save_total_limit=2,
-    eval_strategy="no",      # <— NEW NAME
-    report_to="none",
-)
-
-
+    training_args = TrainingArguments(
+        output_dir=OUTPUT_DIR,
+        per_device_train_batch_size=1,
+        gradient_accumulation_steps=8,
+        num_train_epochs=1.0,
+        learning_rate=2e-4,
+        fp16=True,
+        bf16=False,
+        logging_steps=10,
+        save_steps=200,
+        save_total_limit=2,
+        # No eval_strategy / evaluation_strategy here
+        report_to="none",
+    )
 
     trainer = Trainer(
         model=model,
@@ -111,6 +111,7 @@ def main():
     trainer.train()
     trainer.save_model(OUTPUT_DIR)
     tokenizer.save_pretrained(OUTPUT_DIR)
+
 
 if __name__ == "__main__":
     main()
